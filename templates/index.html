@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness AI Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+    <div class="container" id="homepage">
+        <h2>Welcome to Fitness AI Assistant</h2>
+        <button onclick="showOption('fitness')">Option 1: Fitness Form</button>
+        <button onclick="showOption('image')">Option 2: Upload Image</button>
+    </div>
+
+    <!-- Fitness Form (Initially Hidden) -->
+    <div class="container" id="fitnessFormContainer" style="display: none;">
+        <h2>Fitness AI Assistant</h2>
+        <form id="fitnessForm">
+            <label>Sex: <input type="text" name="sex" required></label>
+            <label>Age: <input type="number" name="age" required></label>
+            <label>Height (cm): <input type="number" name="height" required></label>
+            <label>Weight (kg): <input type="number" name="weight" required></label>
+            <label>Hypertension: <input type="text" name="hypertension"></label>
+            <label>Diabetes: <input type="text" name="diabetes"></label>
+            <label>Exercises: <input type="text" name="exercises" required></label>
+            <label>Equipment: <input type="text" name="equipment" required></label>
+            <label>Diet: <input type="text" name="diet" required></label>
+            <button type="submit">Generate Recommendation</button>
+        </form>
+        <div id="output"></div>
+        <button onclick="goBack()">Back to Home</button>
+    </div>
+
+    <!-- Image Upload Form (Initially Hidden) -->
+    <div class="container" id="imageUploadContainer" style="display: none;">
+        <h2>Upload an Image</h2>
+        <form id="imageForm" enctype="multipart/form-data">
+            <input type="file" id="imageInput" name="image" accept="image/*" required>
+            <button type="submit">Upload</button>
+        </form>
+        <div id="imageOutput"></div>
+        <button onclick="goBack()">Back to Home</button>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
