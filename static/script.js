@@ -1,36 +1,25 @@
-function showOption(option) {
-    document.getElementById("homepage").style.display = "none";
+document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("fitnessForm").addEventListener("submit", function (event) {
+        event.preventDefault(); // Prevent form reload
 
-    if (option === "fitness") {
-        document.getElementById("fitnessFormContainer").style.display = "block";
-    } else if (option === "image") {
-        document.getElementById("imageUploadContainer").style.display = "block";
-    }
-}
+        let formData = {};
+        new FormData(this).forEach((value, key) => (formData[key] = value));
 
-function goBack() {
-    document.getElementById("homepage").style.display = "block";
-    document.getElementById("fitnessFormContainer").style.display = "none";
-    document.getElementById("imageUploadContainer").style.display = "none";
-}
-
-// Handle image upload
-document.getElementById("imageForm").addEventListener("submit", async function(event) {
-    event.preventDefault();
-
-    const formData = new FormData();
-    formData.append("image", document.getElementById("imageInput").files[0]);
-
-    try {
-        const response = await fetch("/upload", {
+        fetch("/generate", {
             method: "POST",
-            body: formData
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(formData),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.response) {
+                document.getElementById("output").innerHTML = `<strong>Recommendation:</strong> ${data.response}`;
+            } else {
+                document.getElementById("output").innerHTML = `<strong>Error:</strong> ${data.error}`;
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
         });
-
-        const result = await response.json();
-        document.getElementById("imageOutput").innerText = result.message || "Upload failed.";
-    } catch (error) {
-        console.error("Error:", error);
-        document.getElementById("imageOutput").innerText = "Error uploading image.";
-    }
+    });
 });

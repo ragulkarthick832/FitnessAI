@@ -1,21 +1,16 @@
-import os
 from flask import Flask, render_template, request, jsonify
 from openai import AzureOpenAI
-from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
-
-# Fetch API credentials from .env
-api_key = os.getenv("AZURE_OPENAI_API_KEY")
-api_version = os.getenv("AZURE_API_VERSION")
-azure_endpoint = os.getenv("AZURE_ENDPOINT")
-azure_deployment = os.getenv("AZURE_DEPLOYMENT_NAME")
+# Fetch API credentials (Consider using environment variables for security)
+api_key = 'EIEKaF9jQN9A1RaprnLGZ5nNKqptnXtolZxtpm2S7lJgHtKxbrxTJQQJ99BCACHYHv6XJ3w3AAAAACOGXYXb'
+api_version = '2024-02-15-preview'
+azure_endpoint = 'https://cben-m8jtydeu-eastus2.openai.azure.com/'
+azure_deployment = 'gpt-4'
 
 # Initialize Flask app
 app = Flask(__name__)
 
-# Initialize Azure OpenAI client
+# Initialize OpenAI client
 client = AzureOpenAI(
     api_key=api_key,
     api_version=api_version,
@@ -28,27 +23,25 @@ def home():
 
 @app.route('/generate', methods=['POST'])
 def generate():
-    data = request.json
-    fitness_summary = f"I am a {data['age']}-year-old {data['sex']}, with a height of {data['height']} cm and weight of {data['weight']} kg."
-    
-    response = client.chat.completions.create(
-        model=azure_deployment,
-        messages=[{"role": "user", "content": fitness_summary}]
-    )
+    try:
+        data = request.json
+        if not all(key in data for key in ["age", "sex", "height", "weight", "exercises", "equipment", "diet"]):
+            return jsonify({"error": "Missing required parameters"}), 400
 
-    return jsonify({"response": response.choices[0].message.content})
+        fitness_summary = (
+            f"I am a {data['age']}-year-old {data['sex']}, with a height of {data['height']} cm and weight of {data['weight']} kg. "
+            f"I do {data['exercises']} using {data['equipment']}. My diet includes {data['diet']}."
+        )
 
-@app.route('/upload', methods=['POST'])
-def upload_image():
-    if 'image' not in request.files:
-        return jsonify({"message": "No file uploaded"}), 400
-    
-    file = request.files['image']
-    if file.filename == '':
-        return jsonify({"message": "No selected file"}), 400
+        response = client.chat.completions.create(
+            model=azure_deployment,
+            messages=[{"role": "user", "content": fitness_summary}]
+        )
 
-    # Placeholder for image processing logic
-    return jsonify({"message": "Image received successfully!"})
+        return jsonify({"response": response.choices[0].message.content})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000, debug=True)
+    app.run(debug=True)
